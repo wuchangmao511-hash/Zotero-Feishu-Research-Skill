@@ -1,0 +1,15 @@
+{
+  "zotero": {
+    "base_url": "http://localhost:23119/api",
+    "user_id": 0
+  },
+  "feishu": {
+    "wiki_parent_url": "YOUR_FEISHU_WIKI_OR_DOC_URL",
+    "paper_library_url": "YOUR_FEISHU_BASE_URL",
+    "paper_table_name": "Papers"
+  },
+  "local": {
+    "notes_dir": "notes",
+    "cache_dir": "cache"
+  }
+}
