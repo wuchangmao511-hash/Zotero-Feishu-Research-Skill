@@ -414,6 +414,28 @@ lark-cli auth status
 
 确认配置 URL 正确、当前飞书身份拥有权限，并先解析 Wiki/Base URL 对应的真实对象。不要凭 URL 中的 token 猜测底层对象类型。
 
+## 隐私与安全
+
+公开仓库中不得提交：
+
+- `research.config.json`
+- 飞书 token、App ID、App Secret 或登录缓存
+- 私有 Wiki/Base URL
+- Zotero 数据库文件
+- 论文 PDF
+- 论文全文缓存
+- 私人阅读笔记
+- 包含用户名的本地绝对路径
+
+发布前建议运行：
+
+```powershell
+git status
+git diff --cached
+git grep -n -i -E "secret|token|authorization|app_secret"
+```
+
+如果敏感文件曾被 Git 跟踪，仅把它加入 `.gitignore` 不会从历史中删除；在公开仓库前应先清理 Git 历史并更换已泄露的凭证。
 
 ## License
 
