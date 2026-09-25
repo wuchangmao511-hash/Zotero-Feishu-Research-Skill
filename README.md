@@ -68,8 +68,8 @@ py -3.11 --version
 ## 2. 下载项目
 
 ```powershell
-git clone https://github.com/YOUR_NAME/zotero-feishu-research-agent.git
-Set-Location zotero-feishu-research-agent
+git clone https://github.com/wuchangmao511-hash/Zotero-Feishu-Research-Skill.git
+Set-Location Zotero-Feishu-Research-Skill
 ```
 
 也可以在 GitHub 页面选择 **Code → Download ZIP**，解压后在 PowerShell 中进入项目目录。
