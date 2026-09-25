@@ -67,8 +67,6 @@ py -3.11 --version
 
 ## 2. 下载项目
 
-使用实际 GitHub 地址替换下面的示例地址：
-
 ```powershell
 git clone https://github.com/YOUR_NAME/zotero-feishu-research-agent.git
 Set-Location zotero-feishu-research-agent
