@@ -30,11 +30,10 @@ Research Paper Agent 是一个面向研究生的本地论文阅读与知识管�
 ├── README.md                     # 安装和使用说明
 ├── requirements.txt             # Python 依赖
 ├── research.config.example.json # 可公开的配置模板
-├── research.config.json         # 本机真实配置，不应提交 Git
 ├── scripts/
 │   ├── zotero_local.py          # Zotero Local API 只读客户端
 │   └── paper_extract.py         # PyMuPDF PDF 全文提取 fallback
-├── notes/                        # 正式论文笔记，不应提交私人内容
+├── notes/                        # 正式论文笔记
 └── cache/                        # PDF 提取结果和临时文件
 ```
 
