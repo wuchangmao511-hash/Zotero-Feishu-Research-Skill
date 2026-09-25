@@ -37,7 +37,123 @@ Research Paper Agent 是一个面向研究生的本地论文阅读与知识管�
 └── cache/                        # PDF 提取结果和临时文件
 ```
 
-## 1. 系统要求
+## 部署方式概览
+
+本项目提供两种部署方法：
+
+| 方法 | 适合用户 | 特点 |
+|---|---|---|
+| **方式一：Agent 辅助部署（推荐）** | 使用 Codex、Claude Code 等编码 Agent 的用户 | Agent 自动检查环境、安装依赖和执行 dry run；用户只需完成飞书授权并填写资源 URL |
+| **方式二：PowerShell 手动部署** | 希望理解每个步骤，或需要独立排查环境问题的用户 | 按命令逐项安装、配置和验证 |
+
+无论采用哪种方法，都必须满足以下安全边界：Zotero 只读；不读取 `zotero.sqlite`；不创建飞书测试垃圾数据；不向 GitHub 提交真实配置、论文 PDF、全文缓存或私人笔记。
+
+## 部署方式一：Agent 辅助部署（推荐）
+
+Agent 可以自动完成大部分初始化工作，包括环境检查、虚拟环境创建、Python 依赖安装、飞书 CLI 检查、本地目录创建、配置文件初始化以及只读 dry run。
+
+仍需用户完成两项操作：
+
+1. 在浏览器中完成飞书用户授权。
+2. 提供自己的飞书 Wiki 父节点 URL 和 Paper Library URL。
+
+### 步骤 1：下载项目
+
+```powershell
+git clone https://github.com/wuchangmao511-hash/Zotero-Feishu-Research-Skill.git
+```
+
+也可以在 GitHub 页面选择 **Code → Download ZIP** 并解压。
+
+### 步骤 2：使用 Agent 打开项目
+
+在 Codex 或其他编码 Agent 中打开：
+
+```text
+Zotero-Feishu-Research-Skill
+```
+
+确保 Agent 的当前工作目录中能够看到 `AGENTS.md`、`README.md`、`requirements.txt` 和 `scripts/`。
+
+### 步骤 3：发送部署提示词
+
+将下面的完整提示词发送给 Agent：
+
+```text
+请初始化并部署当前 Research Paper Agent 项目。
+
+开始前完整阅读并严格遵循：
+- AGENTS.md
+- README.md
+- research.config.example.json
+
+请完成以下工作：
+
+1. 检查 Git、Python、Node.js 和 npm 是否可用。
+2. 创建项目虚拟环境 .venv，并在该环境中安装 requirements.txt。
+3. 检查 PyMuPDF 是否能够通过 import fitz 正常导入。
+4. 检查飞书官方 lark-cli；如果没有安装，则通过 npm 安装 @larksuite/cli。
+5. 确保 notes/ 和 cache/ 存在。
+6. 如果 research.config.json 不存在，则从 research.config.example.json 复制创建。
+7. 检查 Zotero Local API：http://localhost:23119/api/。
+8. 检查 lark-cli 当前登录状态。
+9. 如果需要飞书用户授权，请暂停并提示我在浏览器中完成授权。
+10. 如果配置中缺少 Wiki 父节点 URL 或 Paper Library URL，请明确告诉我需要填写的字段，不要自行猜测。
+11. 配置完成后，只读检查飞书 Wiki、Paper Library、Papers 表及其字段。
+12. 执行一次只读 dry run：Zotero 查询 → metadata → PDF attachment → full-text → 本地 PDF 路径。
+
+限制：
+- 不得修改 Zotero。
+- 不得读取 zotero.sqlite。
+- 不得创建飞书测试文档或测试记录。
+- 不得把真实配置、PDF、缓存或私人笔记提交到 Git。
+
+最后按以下格式报告：
+
+Git: PASS / FAIL
+Python: PASS / FAIL
+PyMuPDF: PASS / FAIL
+Zotero Local API: PASS / FAIL
+lark-cli: PASS / FAIL
+Feishu Login: PASS / FAIL
+Feishu Wiki: PASS / FAIL
+Paper Library: PASS / FAIL
+Configuration: PASS / FAIL
+
+对于 FAIL 项，说明具体原因和解决办法。
+```
+
+### 步骤 4：完成两个用户操作
+
+如果 Agent 提示飞书未登录，按照提示完成浏览器授权。通常使用：
+
+```powershell
+lark-cli auth login --domain docs,wiki,base
+```
+
+如果 Agent 提示配置 URL 缺失，编辑 `research.config.json` 中的：
+
+```json
+{
+  "feishu": {
+    "wiki_parent_url": "你的飞书知识库父节点 URL",
+    "paper_library_url": "你的飞书 Paper Library URL",
+    "paper_table_name": "Papers"
+  }
+}
+```
+
+不要在配置文件中填写飞书密码、access token 或 App Secret。
+
+### 步骤 5：确认部署报告
+
+理想结果为所有检查项均为 `PASS`。如果只有 Feishu Login、Feishu Wiki 或 Paper Library 失败，按照 Agent 报告完成授权或修正 URL 后，让 Agent 重新检查失败项即可，不需要从头部署。
+
+## 部署方式二：PowerShell 手动部署
+
+以下流程适合希望逐步安装、不能使用编码 Agent，或需要定位环境问题的用户。
+
+### 1. 系统要求
 
 当前流程以 Windows PowerShell 为主要运行环境。安装前请准备：
 
@@ -64,7 +180,7 @@ npm --version
 py -3.11 --version
 ```
 
-## 2. 下载项目
+### 2. 下载项目
 
 ```powershell
 git clone https://github.com/wuchangmao511-hash/Zotero-Feishu-Research-Skill.git
@@ -73,7 +189,7 @@ Set-Location Zotero-Feishu-Research-Skill
 
 也可以在 GitHub 页面选择 **Code → Download ZIP**，解压后在 PowerShell 中进入项目目录。
 
-## 3. 创建 Python 虚拟环境
+### 3. 创建 Python 虚拟环境
 
 推荐为项目创建独立环境，避免电脑中的多个 Python 版本互相影响：
 
@@ -92,7 +208,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 激活成功后，命令行前通常会出现 `(.venv)`。
 
-## 4. 安装 Python 依赖
+### 4. 安装 Python 依赖
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -108,7 +224,7 @@ python -c "import fitz; print('PyMuPDF:', fitz.VersionBind)"
 
 看到版本号即表示安装成功。PyMuPDF 的安装包名称是 `PyMuPDF`，但 Python 导入名称是 `fitz`。
 
-## 5. 配置 Zotero Desktop
+### 5. 配置 Zotero Desktop
 
 1. 安装并启动 Zotero Desktop。
 2. 确保目标论文已保存为 Zotero 的 top-level bibliographic item。
@@ -144,7 +260,7 @@ python scripts/zotero_local.py health
 - 确认 `localhost:23119` 没有被防火墙或其他程序拦截。
 - 确认配置中的 URL 没有写成远程 Zotero Web API 地址。
 
-## 6. 安装飞书官方 CLI
+### 6. 安装飞书官方 CLI
 
 飞书 CLI 通过 npm 安装：
 
@@ -164,7 +280,7 @@ lark-cli --version
 2. 执行 `npm config get prefix` 查看 npm 全局安装目录。
 3. 确认该目录已加入用户的 `PATH` 环境变量。
 
-## 7. 登录飞书
+### 7. 登录飞书
 
 仅申请当前工作流需要的文档、知识库和多维表格权限：
 
@@ -180,7 +296,7 @@ lark-cli auth status
 
 正常情况下应看到 user identity 可用。Token 到期时，CLI 通常会在下一次用户 API 调用时自动刷新；刷新失败则重新执行登录命令。
 
-## 8. 准备飞书资源
+### 8. 准备飞书资源
 
 在飞书中准备以下资源：
 
@@ -214,7 +330,7 @@ Paper Library 推荐包含以下字段：
 
 如果现有 Base 字段与上述规范不同，只报告差异，不要自动删除或重命名已有字段。
 
-## 9. 创建本地配置
+### 9. 创建本地配置
 
 复制公开模板：
 
@@ -251,7 +367,7 @@ Copy-Item research.config.example.json research.config.json
 
 Wiki URL 中的 token 不一定是底层文档或 Base token。实际操作时应使用 `lark-cli wiki` 或 URL 解析能力取得真实对象，不能直接假设 URL token 就是目标对象 token。
 
-## 10. 创建本地目录
+### 10. 创建本地目录
 
 ```powershell
 New-Item -ItemType Directory -Force notes, cache | Out-Null
@@ -261,7 +377,7 @@ New-Item -ItemType Directory -Force notes, cache | Out-Null
 - `cache/` 保存临时查询、PDF 提取和页面渲染结果。
 - 私人笔记、PDF 和缓存默认不提交 Git。
 
-## 11. 验证 Zotero 读取流程
+### 11. 验证 Zotero 读取流程
 
 搜索论文：
 
@@ -291,7 +407,7 @@ python scripts/zotero_local.py collections
 
 上述命令全部只发出 HTTP GET 请求，不修改 Zotero。
 
-## 12. 测试 PDF fallback
+### 12. 测试 PDF fallback
 
 当 Zotero `fulltext` 不可用或内容不完整时，先用 `file` 命令取得真实 PDF 路径，再运行：
 
@@ -312,7 +428,7 @@ python scripts/paper_extract.py "C:\path\to\paper.pdf" `
 
 输出文件使用 UTF-8，并以 `## Page N` 保留页码边界。扫描版 PDF 如果没有文字层，需要额外 OCR；PyMuPDF 本身不会自动完成 OCR。
 
-## 13. 验证飞书访问
+### 13. 验证飞书访问
 
 先检查身份和命令是否可用：
 
@@ -325,7 +441,7 @@ lark-cli base --help
 
 之后根据 `research.config.json` 中的 URL 做只读检查。不要为了验证连接而创建测试文档或垃圾记录。
 
-## 14. 使用 Agent 阅读第一篇论文
+### 14. 使用 Agent 阅读第一篇论文
 
 在 Codex 中打开项目目录，并提交类似下面的任务：
 
@@ -350,7 +466,7 @@ Zotero 查询
 
 任一步失败都应停止后续写入。例如飞书文档创建失败时，Paper Library 不应被标记为“已读”。
 
-## 15. 安装完成检查表
+### 15. 安装完成检查表
 
 完成以下检查即表示环境可以使用：
 
